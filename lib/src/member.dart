@@ -1,23 +1,10 @@
-import 'package:splitto/src/payment_item.dart';
-
 class Member {
-  List<PaymentItem> payments = [];
+  final String name;
+
+  Member(this.name) {
+    if (name.trim().isEmpty) {
+      throw ArgumentError.value(name, 'name', 'name cannot be null');
+    }
+  }
   
-  double get debts {
-    return payments
-        .map((item) => item.amount)
-        .fold(0, (sum, item) => sum + item);
-  }
-
-  double get credits {
-    return 0;
-  }
-
-  void addPayment(PaymentItem item) {
-    payments.add(item);
-  }
-
-  void removePayment(PaymentItem item) {
-    payments.remove(item);
-  }
 }
