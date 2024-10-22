@@ -1,11 +1,14 @@
 import 'package:splitto/src/member.dart';
-import 'package:splitto/src/payment_item.dart';
+import 'package:splitto/src/payment_item/payment_item.dart';
 
 class Group {
+  String name;
   final List<Member> members;
   final List<PaymentItem> payments = [];
 
-  Group(this.members) : assert(members.isNotEmpty, 'members cannot be empty') {
+  Group(this.name, this.members)
+      : assert(name.trim().isNotEmpty, 'name cannot be empty'),
+        assert(members.isNotEmpty, 'members cannot be empty') {
     final uniqMemberNames = members.map((item) => item.name).toSet();
     if (uniqMemberNames.length < members.length) {
       throw ArgumentError.value(

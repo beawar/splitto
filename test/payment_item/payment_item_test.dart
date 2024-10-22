@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:splitto/src/member.dart';
-import 'package:splitto/src/payment_item.dart';
+import 'package:splitto/src/payment_item/payment_item.dart';
 
 void main() {
   test('should set an amout', () {
