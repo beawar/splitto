@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:splitto/src/groups/group.dart';
+import 'package:splitto/src/groups/group_details_view.dart';
 
 class GroupListItemView extends StatelessWidget {
   const GroupListItemView({required this.item, super.key});
@@ -12,6 +13,10 @@ class GroupListItemView extends StatelessWidget {
       leading: const CircleAvatar(
         child: Icon(Icons.group),
       ),
+      onTap: () {
+        Navigator.restorablePushNamed(context, GroupDetailsView.routeName,
+            arguments: item.name);
+      },
     );
   }
 }

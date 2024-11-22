@@ -3,26 +3,26 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:splitto/src/app_model.dart';
 import 'package:splitto/src/groups/group.dart';
-import 'package:splitto/src/groups/group_list_item_view.dart';
-import 'package:splitto/src/groups/group_list_view.dart';
+import 'package:splitto/src/groups/group_details_view.dart';
 import 'package:splitto/src/member.dart';
 
 void main() {
-  group('GroupListView', () {
-    testWidgets('should show a list of groups', (WidgetTester tester) async {
-      final members = [Member('me')];
-      final groups = [Group('group 1', members), Group('group 2', members)];
+  group('GroupDetailsView', () {
+    testWidgets('should show the name of the group',
+        (WidgetTester tester) async {
+      final group = Group('the name of the group', [Member('member 1')]);
+      await tester
+          .pumpWidget(_TestWidget(groups: [group], currentGroup: group));
 
-      await tester.pumpWidget(_TestWidget(groups: groups));
-
-      expect(find.byType(GroupListItemView), findsExactly(2));
+      expect(find.text(group.name), findsOne);
     });
   });
 }
 
 class _TestWidget extends StatelessWidget {
   final List<Group> groups;
-  const _TestWidget({required this.groups});
+  final Group currentGroup;
+  const _TestWidget({required this.groups, required this.currentGroup});
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +35,8 @@ class _TestWidget extends StatelessWidget {
     }, child: MaterialApp(
       onGenerateRoute: (settings) {
         return MaterialPageRoute(
-            builder: (context) => GroupListView()
-        );
+            builder: (context) => GroupDetailsView(),
+            settings: RouteSettings(arguments: currentGroup.name));
       },
     ));
   }
