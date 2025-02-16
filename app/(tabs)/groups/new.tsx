@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
-import { useGroups } from "../../../hooks/useGroups";
+import { useGroups } from "@/hooks/useGroups";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, Div, Input, Text } from "react-native-magnus";
 

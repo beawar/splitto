@@ -40,6 +40,13 @@
             "./node_modules/@react-native-vector-icons/material-design-icons/fonts/MaterialDesignIcons.ttf"
           ]
         }
+      ],
+      [
+        "expo-sqlite",
+        {
+          "enableFTS": true,
+          "useSQLCipher": true
+        }
       ]
     ],
     "experiments": {
