@@ -1,22 +1,22 @@
+import { groups } from "@/db/schema/groups";
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
-import * as schema from "@/db/schema";
 import { useDB, useLiveQuery } from "./useDB";
 
 export const useGroups = () => {
   const { db } = useDB();
-  const { data: groups } = useLiveQuery(db.select().from(schema.groups));
+  const { data } = useLiveQuery(db.query.groups.findMany());
 
   const createGroup = async (group: { name: string }) => {
     const newGroup = {
       id: uuidv4(),
       ...group,
     };
-    await db.insert(schema.groups).values(newGroup);
+    await db.insert(groups).values(newGroup);
   };
 
   return {
-    groups,
+    groups: data,
     createGroup,
   };
 };

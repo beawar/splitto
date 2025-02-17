@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import { Button, Div, Fab, Icon, Text } from "react-native-magnus";
 
-export const NewGroupFab = () => {
+export const GroupsNewFab = () => {
   const router = useRouter();
   return (
     <Fab>

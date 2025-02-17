@@ -1,5 +1,5 @@
+import { GroupsNewFab } from "@/components/GroupsNewFab";
 import ListItem from "@/components/ListItem";
-import { NewGroupFab } from "@/components/NewGroupFab";
 import { useGroups } from "@/hooks/useGroups";
 import { FlatList, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -27,10 +27,10 @@ export default function Index() {
     <SafeAreaView style={styles.container}>
       <FlatList
         data={groups}
-        renderItem={({ item }) => <ListItem name={item.name} />}
+        renderItem={({ item }) => <ListItem id={item.id} name={item.name} />}
         style={styles.list}
       />
-      <NewGroupFab />
+      <GroupsNewFab />
     </SafeAreaView>
   );
 }
