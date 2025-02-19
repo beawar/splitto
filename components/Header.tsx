@@ -1,24 +1,24 @@
 import { Header as HeaderRNE } from "@rneui/themed";
-import { useRouter } from "expo-router";
+import { RelativePathString, useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet } from "react-native";
 
 type HeaderComponentProps = {
   title: string;
-  showBackButton?: boolean;
+  backRoute?: RelativePathString;
 };
 
-export const Header = ({ title, showBackButton }: HeaderComponentProps) => {
+export const Header = ({ title, backRoute }: HeaderComponentProps) => {
   const router = useRouter();
 
   return (
     <HeaderRNE
       leftComponent={
-        (showBackButton && {
+        (backRoute && {
           icon: "arrow-left",
           type: "material-community",
           color: "#fff",
-          onPress: () => router.back(),
+          onPress: () => router.replace(backRoute),
         }) ||
         undefined
       }

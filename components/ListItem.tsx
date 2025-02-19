@@ -12,10 +12,11 @@ export default function ListItem({ id, name }: ListItemProps) {
   const router = useRouter();
   const { theme } = useTheme();
 
+  const goToDetails = () => {
+    router.push({ pathname: "/groups/[id]", params: { id } });
+  };
   return (
-    <RNEListItem
-      onPress={() => router.push({ pathname: "/groups/[id]", params: { id } })}
-    >
+    <RNEListItem onPress={goToDetails}>
       <Avatar
         size="medium"
         title={initials}

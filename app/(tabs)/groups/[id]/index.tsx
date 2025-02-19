@@ -1,11 +1,13 @@
 import ErrorPage from "@/components/ErrorPage";
+import ErrorPage from "@/components/ErrorPage";
 import { GroupNewFab } from "@/components/GroupNewFab";
+import { Header } from "@/components/Header";
 import { Header } from "@/components/Header";
 import { useGroup } from "@/hooks/useGroup";
 import { ListItem, Text } from "@rneui/themed";
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 const ACCORDION_KEYS = {
@@ -17,10 +19,10 @@ type AccordionKeys = keyof typeof ACCORDION_KEYS | undefined;
 
 export default function GroupDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { group } = useGroup(id);
+  const { group, error } = useGroup(id);
   const [expandedTab, setExpandedTab] = useState<AccordionKeys>("expenses");
 
-  if (!group) {
+  if (error) {
     return (
       <ErrorPage
         title="Ops! Qualcosa è andato storto"
@@ -29,9 +31,13 @@ export default function GroupDetails() {
     );
   }
 
+  if (!group) {
+    return <ActivityIndicator />;
+  }
+
   return (
     <SafeAreaProvider>
-      <Header title={group?.name} showBackButton />
+      <Header title={group?.name} backRoute=".." />
       <ListItem.Accordion
         content={
           <ListItem.Content>

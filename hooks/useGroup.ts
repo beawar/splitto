@@ -1,8 +1,7 @@
-import { Group, groups } from "@/db/schema/groups";
+import { Group } from "@/db/schema/groups";
 import { User, users } from "@/db/schema/users";
 import { usersToGroups } from "@/db/schema/users_to_groups";
 import { useDB, useLiveQuery } from "@/hooks/useDB";
-import { eq } from "drizzle-orm";
 import { useCallback, useMemo } from "react";
 import { v4 as uuidV4 } from "uuid";
 
@@ -12,16 +11,19 @@ type GroupWithUsers = Group & {
 
 export function useGroup(id: string) {
   const { db } = useDB();
-  const { data } = useLiveQuery(
+  const { data, error: groupError } = useLiveQuery(
     db.query.groups.findFirst({
-      where: eq(groups.id, id),
+      where: (groups, { eq }) => eq(groups.id, id),
+    }),
+    [id],
+  );
+
+  const { data: members, error: membersError } = useLiveQuery(
+    db.query.usersToGroups.findMany({
       with: {
-        usersToGroups: {
-          with: {
-            user: true,
-          },
-        },
+        user: true,
       },
+      where: (usersToGroups, { eq }) => eq(usersToGroups.groupId, id),
     }),
     [id],
   );
@@ -39,15 +41,16 @@ export function useGroup(id: string) {
 
   const normalizedGroup = useMemo(() => {
     if (!data) return undefined;
-
     return {
       id: data.id,
       name: data.name,
-      users: data.usersToGroups.map((item) => item.user) ?? [],
+      users: members?.map(({ user }) => user) ?? [],
     } satisfies GroupWithUsers;
-  }, [data]);
+  }, [data, members]);
 
-  console.log(normalizedGroup);
-
-  return { group: normalizedGroup, addMember };
+  return {
+    group: normalizedGroup,
+    addMember,
+    error: groupError || membersError,
+  };
 }
