@@ -1,9 +1,9 @@
-import { StyleSheet } from "react-native";
-import { useState } from "react";
-import { useRouter } from "expo-router";
 import { useGroups } from "@/hooks/useGroups";
+import { Button, Input, Text } from "@rneui/themed";
+import { useRouter } from "expo-router";
+import { useState } from "react";
+import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Button, Div, Input, Text } from "react-native-magnus";
 
 export default function NewGroupPage() {
   const [groupName, setGroupName] = useState("");
@@ -19,8 +19,8 @@ export default function NewGroupPage() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Div p="lg">
-        <Text fontWeight="bold" fontSize="lg" mb="md">
+      <View style={styles.content}>
+        <Text h4 style={styles.title}>
           Group Name
         </Text>
         <Input
@@ -28,13 +28,13 @@ export default function NewGroupPage() {
           value={groupName}
           onChangeText={setGroupName}
           autoFocus
-          mb="lg"
-          borderColor="gray400"
         />
-        <Button block onPress={handleCreateGroup}>
-          Create Group
-        </Button>
-      </Div>
+        <Button
+          title="Create Group"
+          onPress={handleCreateGroup}
+          style={styles.button}
+        />
+      </View>
     </SafeAreaView>
   );
 }
@@ -42,6 +42,14 @@ export default function NewGroupPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+  },
+  content: {
+    padding: 16,
+  },
+  title: {
+    marginBottom: 16,
+  },
+  button: {
+    marginTop: 16,
   },
 });

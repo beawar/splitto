@@ -8,11 +8,13 @@ export const useGroups = () => {
   const { data } = useLiveQuery(db.query.groups.findMany());
 
   const createGroup = async (group: { name: string }) => {
-    const newGroup = {
-      id: uuidv4(),
-      ...group,
-    };
-    await db.insert(groups).values(newGroup);
+    await db.transaction(async (tx) => {
+      const newGroup = {
+        id: uuidv4(),
+        ...group,
+      };
+      await tx.insert(groups).values(newGroup);
+    });
   };
 
   return {

@@ -1,28 +1,28 @@
+import { FAB, Icon } from "@rneui/themed";
 import { useRouter } from "expo-router";
-import { Button, Div, Fab, Icon, Text } from "react-native-magnus";
+import { StyleSheet } from "react-native";
 
 export const GroupsNewFab = () => {
   const router = useRouter();
   return (
-    <Fab>
-      <Button
-        p="none"
-        bg="transparent"
-        onPress={() => router.push("/groups/new")}
-      >
-        <Div rounded="sm" bg="white" p="sm">
-          <Text fontSize="md">New group</Text>
-        </Div>
+    <FAB
+      placement="right"
+      icon={
         <Icon
           name="account-multiple-plus-outline"
-          fontFamily="MaterialCommunityIcons"
-          fontSize={24}
-          p={18}
-          rounded="circle"
-          ml="md"
-          bg="white"
+          type="material-community"
+          size={24}
         />
-      </Button>
-    </Fab>
+      }
+      title="New group"
+      onPress={() => router.push("/groups/new")}
+      style={styles.fab}
+    />
   );
 };
+
+const styles = StyleSheet.create({
+  fab: {
+    margin: 16,
+  },
+});

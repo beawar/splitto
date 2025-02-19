@@ -15,6 +15,13 @@
       "when": 1739825531706,
       "tag": "0001_black_vin_gonzales",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1739995943436,
+      "tag": "0002_blushing_epoch",
+      "breakpoints": true
     }
   ]
 }

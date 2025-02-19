@@ -2,6 +2,7 @@
 
 import m0000 from "./0000_confused_blonde_phantom.sql";
 import m0001 from "./0001_black_vin_gonzales.sql";
+import m0002 from "./0002_blushing_epoch.sql";
 import journal from "./meta/_journal.json";
 
 export default {
@@ -9,5 +10,6 @@ export default {
   migrations: {
     m0000,
     m0001,
+    m0002,
   },
 };

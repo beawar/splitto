@@ -1,50 +1,86 @@
+import ErrorPage from "@/components/ErrorPage";
 import { GroupNewFab } from "@/components/GroupNewFab";
+import { Header } from "@/components/Header";
 import { useGroup } from "@/hooks/useGroup";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { FlatList } from "react-native";
-import { Button, Collapse, Div, Header, Icon, Text } from "react-native-magnus";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ListItem, Text } from "@rneui/themed";
+import { useLocalSearchParams } from "expo-router";
+import { useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+
+const ACCORDION_KEYS = {
+  members: "members",
+  expenses: "expenses",
+} as const;
+
+type AccordionKeys = keyof typeof ACCORDION_KEYS | undefined;
 
 export default function GroupDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { group } = useGroup(id);
-  const router = useRouter();
+  const [expandedTab, setExpandedTab] = useState<AccordionKeys>("expenses");
+
+  if (!group) {
+    return (
+      <ErrorPage
+        title="Ops! Qualcosa è andato storto"
+        subtitle="Assicurati di aver selezionato un gruppo valido"
+      />
+    );
+  }
+
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        justifyContent: "flex-start",
-        alignItems: "center",
-      }}
-    >
-      <Header
-        alignment="center"
-        prefix={
-          <Button bg="transparent" onPress={() => router.back()}>
-            <Icon
-              name="arrow-left"
-              fontFamily="MaterialCommunityIcons"
-              fontSize="2xl"
-            />
-          </Button>
+    <SafeAreaProvider>
+      <Header title={group?.name} showBackButton />
+      <ListItem.Accordion
+        content={
+          <ListItem.Content>
+            <ListItem.Title>Members</ListItem.Title>
+          </ListItem.Content>
+        }
+        isExpanded={expandedTab === ACCORDION_KEYS.members}
+        onPress={() =>
+          setExpandedTab((prevState) =>
+            prevState === ACCORDION_KEYS.members
+              ? undefined
+              : ACCORDION_KEYS.members,
+          )
         }
       >
-        {group?.name}
-      </Header>
-      <Div>
-        <Collapse>
-          <Collapse.Header bg="white" color="gray900">
-            Members
-          </Collapse.Header>
-          <Collapse.Body>
-            <FlatList
-              data={group?.users}
-              renderItem={({ item }) => <Text>{item.name}</Text>}
-            />
-          </Collapse.Body>
-        </Collapse>
-      </Div>
+        {group.users.length > 0 ? (
+          group.users.map((user) => (
+            <ListItem key={user.id}>
+              <ListItem.Content>
+                <ListItem.Title style={styles.accordionText}>
+                  {user.name}
+                </ListItem.Title>
+              </ListItem.Content>
+            </ListItem>
+          ))
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Text>It seems there is no member yet.</Text>
+          </View>
+        )}
+      </ListItem.Accordion>
       <GroupNewFab />
-    </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  accordionText: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  emptyContainer: {
+    backgroundColor: "#fff",
+    padding: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});

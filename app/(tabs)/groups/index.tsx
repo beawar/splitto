@@ -1,13 +1,14 @@
 import { GroupsNewFab } from "@/components/GroupsNewFab";
+import { Header } from "@/components/Header";
 import ListItem from "@/components/ListItem";
 import { useGroups } from "@/hooks/useGroups";
 import { FlatList, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
   },
   list: {
@@ -24,13 +25,14 @@ export default function Index() {
   const { groups } = useGroups();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaProvider style={styles.container}>
+      <Header title="Groups" />
       <FlatList
         data={groups}
         renderItem={({ item }) => <ListItem id={item.id} name={item.name} />}
         style={styles.list}
       />
       <GroupsNewFab />
-    </SafeAreaView>
+    </SafeAreaProvider>
   );
 }

@@ -8,10 +8,10 @@ export const usersToGroups = sqliteTable(
   {
     userId: text("user_id")
       .notNull()
-      .references(() => users.id),
+      .references(() => users.id, { onDelete: "cascade" }),
     groupId: text("group_id")
       .notNull()
-      .references(() => groups.id),
+      .references(() => groups.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.userId, t.groupId] })],
 );
@@ -34,3 +34,5 @@ export const usersToGroupsRelations = relations(usersToGroups, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+export type UsersToGroups = typeof usersToGroups.$inferSelect;

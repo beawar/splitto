@@ -1,43 +1,34 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { Button, Div, Fab, Icon, Text } from "react-native-magnus";
+import { Icon, SpeedDial } from "@rneui/themed";
+import { useRouter } from "expo-router";
+import { useState } from "react";
 
 export const GroupNewFab = () => {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const [open, setOpen] = useState(false);
+
   return (
-    <Fab>
-      <Button
-        p="none"
-        bg="transparent"
-        onPress={() => router.push(`./new-member`)}
-      >
-        <Div rounded="sm" bg="white" p="sm">
-          <Text fontSize="md">Add member</Text>
-        </Div>
-        <Icon
-          name="account-plus-outline"
-          fontFamily="MaterialCommunityIcons"
-          fontSize={24}
-          p={18}
-          rounded="circle"
-          ml="md"
-          bg="white"
-        />
-      </Button>
-      <Button p="none" bg="transparent">
-        <Div rounded="sm" bg="white" p="sm">
-          <Text fontSize="md">Add expense</Text>
-        </Div>
-        <Icon
-          name="cash-plus"
-          fontFamily="MaterialCommunityIcons"
-          fontSize={24}
-          p={18}
-          rounded="circle"
-          ml="md"
-          bg="white"
-        />
-      </Button>
-    </Fab>
+    <SpeedDial
+      isOpen={open}
+      icon={<Icon name="plus" type="material-community" />}
+      openIcon={<Icon name="close" type="material-community" />}
+      onOpen={() => setOpen(true)}
+      onClose={() => setOpen(false)}
+    >
+      <SpeedDial.Action
+        icon={<Icon name="account-plus-outline" type="material-community" />}
+        title="Add member"
+        onPress={() => {
+          router.push("./new-member", { relativeToDirectory: true });
+          setOpen(false);
+        }}
+      />
+      <SpeedDial.Action
+        icon={<Icon name="cash-plus" type="material-community" />}
+        title="Add expense"
+        onPress={() => {
+          setOpen(false);
+        }}
+      />
+    </SpeedDial>
   );
 };
