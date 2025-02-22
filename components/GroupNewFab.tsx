@@ -26,6 +26,7 @@ export const GroupNewFab = () => {
         icon={<Icon name="cash-plus" type="material-community" />}
         title="Add expense"
         onPress={() => {
+          router.push("./new-expense", { relativeToDirectory: true });
           setOpen(false);
         }}
       />

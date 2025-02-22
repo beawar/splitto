@@ -1,13 +1,15 @@
-import { Group } from "@/db/schema/groups";
-import { User, users } from "@/db/schema/users";
-import { usersToGroups } from "@/db/schema/users_to_groups";
+import {
+  Expense,
+  expenses,
+  expensesToUsers,
+  User,
+  users,
+  usersToGroups,
+} from "@/db/schema";
 import { useDB, useLiveQuery } from "@/hooks/useDB";
+import { eq } from "drizzle-orm";
 import { useCallback, useMemo } from "react";
 import { v4 as uuidV4 } from "uuid";
-
-type GroupWithUsers = Group & {
-  users: User[];
-};
 
 export function useGroup(id: string) {
   const { db } = useDB();
@@ -28,6 +30,13 @@ export function useGroup(id: string) {
     [id],
   );
 
+  const { data: expensesData, error: expensesError } = useLiveQuery(
+    db.query.expenses.findMany({
+      where: (expenses, { eq }) => eq(expenses.groupId, id),
+    }),
+    [id],
+  );
+
   const addMember = useCallback(
     async (name: string) => {
       await db.transaction(async (tx) => {
@@ -39,18 +48,44 @@ export function useGroup(id: string) {
     [db, id],
   );
 
+  const addExpense = useCallback(
+    async (expense: Omit<Expense, "id">, participants: string[]) => {
+      const id = uuidV4();
+      await db.transaction(async (tx) => {
+        await tx.insert(expenses).values({ id, ...expense });
+        await tx.insert(expensesToUsers).values(
+          participants.map((participant) => ({
+            expenseId: id,
+            userId: participant,
+          })),
+        );
+      });
+    },
+    [db],
+  );
+
+  const deleteExpense = useCallback(
+    async (expenseId: string) => {
+      await db.delete(expenses).where(eq(expenses.id, expenseId));
+    },
+    [db],
+  );
+
   const normalizedGroup = useMemo(() => {
     if (!data) return undefined;
     return {
       id: data.id,
       name: data.name,
       users: members?.map(({ user }) => user) ?? [],
-    } satisfies GroupWithUsers;
-  }, [data, members]);
+      expenses: expensesData ?? [],
+    };
+  }, [data, members, expensesData]);
 
   return {
     group: normalizedGroup,
+    error: groupError || membersError || expensesError,
     addMember,
-    error: groupError || membersError,
+    addExpense,
+    deleteExpense,
   };
 }

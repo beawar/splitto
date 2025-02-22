@@ -1,6 +1,4 @@
-import * as groups from "@/db/schema/groups";
-import * as users from "@/db/schema/users";
-import * as usersToGroups from "@/db/schema/users_to_groups";
+import * as schema from "@/db/schema";
 import { drizzle } from "drizzle-orm/expo-sqlite";
 import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 import { useSQLiteContext } from "expo-sqlite";
@@ -8,7 +6,7 @@ import { useSQLiteContext } from "expo-sqlite";
 export const useDB = () => {
   const db = useSQLiteContext();
   const drizzleDb = drizzle(db, {
-    schema: { ...groups, ...users, ...usersToGroups },
+    schema: schema,
     logger: true,
   });
   useDrizzleStudio(db);

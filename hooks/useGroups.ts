@@ -1,4 +1,4 @@
-import { groups } from "@/db/schema/groups";
+import { groups } from "@/db/schema";
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
 import { useDB, useLiveQuery } from "./useDB";

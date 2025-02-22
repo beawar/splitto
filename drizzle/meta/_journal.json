@@ -22,6 +22,27 @@
       "when": 1739995943436,
       "tag": "0002_blushing_epoch",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1740248338603,
+      "tag": "0003_fast_sleeper",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1740257941555,
+      "tag": "0004_daffy_killmonger",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1740259288602,
+      "tag": "0005_wakeful_quicksilver",
+      "breakpoints": true
     }
   ]
 }
