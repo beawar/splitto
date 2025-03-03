@@ -8,11 +8,13 @@ export type DateTimeInputProps = {
   label: string;
   value?: Date;
   onDateChange: (date: Date | undefined) => void;
+  errorMessage?: string;
 };
 export const DateTimeInput = ({
   label,
   value = new Date(),
   onDateChange,
+  errorMessage,
 }: DateTimeInputProps) => {
   const [show, setShow] = useState(false);
 
@@ -36,7 +38,13 @@ export const DateTimeInput = ({
 
   return (
     <Fragment>
-      <Input label={label} value={localizedDate} onPress={showDatepicker} />;
+      <Input
+        label={label}
+        value={localizedDate}
+        onPress={showDatepicker}
+        errorMessage={errorMessage}
+      />
+      ;
       {show && (
         <DateTimePicker
           testID="dateTimePicker"

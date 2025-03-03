@@ -1,6 +1,7 @@
 import { DBProvider } from "@/components/DBProvider";
 import { ThemeProvider, createTheme } from "@rneui/themed";
 import { Stack } from "expo-router";
+import { AutocompleteDropdownContextProvider } from "react-native-autocomplete-dropdown";
 
 const theme = createTheme({
   // lightColors: {
@@ -15,9 +16,11 @@ export default function RootLayout() {
   return (
     <ThemeProvider theme={theme}>
       <DBProvider>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        </Stack>
+        <AutocompleteDropdownContextProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          </Stack>
+        </AutocompleteDropdownContextProvider>
       </DBProvider>
     </ThemeProvider>
   );

@@ -88,7 +88,7 @@ export const expenses = sqliteTable("expenses", {
 
 export const expensesRelations = relations(expenses, ({ one, many }) => ({
   group: one(groups, {
-    fields: [expenses.id],
+    fields: [expenses.groupId],
     references: [groups.id],
   }),
   payer: one(users, {

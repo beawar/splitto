@@ -4,9 +4,9 @@ import { Header } from "@/components/Header";
 import { EXPENSE_CATEGORY } from "@/constants";
 import { useGroup } from "@/hooks/useGroup";
 import { Button, Divider, Icon, ListItem, Text } from "@rneui/themed";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 const ACCORDION_KEYS = {
@@ -20,6 +20,7 @@ export default function GroupDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { group, error, deleteExpense } = useGroup(id);
   const [expandedTab, setExpandedTab] = useState<AccordionKeys>("expenses");
+  const router = useRouter();
 
   const onDeleteExpense = (expenseId: string, reset: () => void) => () => {
     deleteExpense(expenseId);
@@ -89,18 +90,29 @@ export default function GroupDetails() {
           )
         }
       >
-        {group.expenses.length > 0 ? (
-          group.expenses.map((expense) => (
-            <ListItem key={expense.id}>
+        <ScrollView>
+          {group.expenses.length > 0 ? (
+            group.expenses.map((expense) => (
               <ListItem.Swipeable
+                key={expense.id}
                 rightContent={(reset) => (
                   <Button
                     title="Delete"
                     onPress={onDeleteExpense(expense.id, reset)}
-                    icon={{ name: "delete", color: "white" }}
+                    icon={{
+                      name: "delete",
+                      color: "white",
+                      type: "material-community",
+                    }}
                     buttonStyle={{ minHeight: "100%", backgroundColor: "red" }}
                   />
                 )}
+                onPress={() => {
+                  router.push({
+                    pathname: "/expenses/[id]",
+                    params: { id: expense.id },
+                  });
+                }}
               >
                 <Icon
                   name={
@@ -108,6 +120,7 @@ export default function GroupDetails() {
                       expense.category as keyof typeof EXPENSE_CATEGORY
                     ].icon
                   }
+                  type="material-community"
                 />
                 <ListItem.Content>
                   <ListItem.Title>{expense.description}</ListItem.Title>
@@ -120,14 +133,15 @@ export default function GroupDetails() {
                 </ListItem.Content>
                 <ListItem.Chevron />
               </ListItem.Swipeable>
-            </ListItem>
-          ))
-        ) : (
-          <View style={styles.emptyContainer}>
-            <Text>It seems there is no member yet.</Text>
-          </View>
-        )}
+            ))
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Text>It seems there is no expense yet.</Text>
+            </View>
+          )}
+        </ScrollView>
       </ListItem.Accordion>
+
       <GroupNewFab />
     </SafeAreaProvider>
   );

@@ -1,14 +1,15 @@
 import { DateTimeInput } from "@/components/DateTimeInput";
 import { Header } from "@/components/Header";
 import { EXPENSE_CATEGORY } from "@/constants";
-import { Expense, User } from "@/db/schema";
+import { Expense } from "@/db/schema";
 import { useGroup } from "@/hooks/useGroup";
 import { capitalize } from "@/utils/string";
 import { Picker } from "@react-native-picker/picker";
 import { Button, Icon, Input, makeStyles, Text } from "@rneui/themed";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
+import { AutocompleteDropdown } from "react-native-autocomplete-dropdown";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function NewExpense() {
@@ -16,28 +17,51 @@ export default function NewExpense() {
   const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { group, addExpense } = useGroup(id);
-  const [expense, setExpense] = useState<Partial<Omit<Expense, "id">>>({});
-  const [payerName, setPayerName] = useState("");
-  const [payerOptions, setPayerOptions] = useState<User[]>([]);
+  const [expense, setExpense] = useState<Partial<Omit<Expense, "id">>>({
+    groupId: id,
+  });
+  const [errors, setErrors] = useState<Partial<Record<keyof Expense, string>>>(
+    {},
+  );
 
-  const onAdd = () => {
+  const onAdd = async () => {
+    console.log("onAdd", expense);
+    const validationErrors: Partial<Record<keyof Expense, string>> = {};
+    if (!expense.description?.trim()) {
+      validationErrors.description = "Description cannot be empty";
+    }
+    if (expense.amount === undefined) {
+      validationErrors.amount = "Amount cannot be empty";
+    }
+    if (expense.date === undefined) {
+      validationErrors.date = "Date cannot be empty";
+    }
+    if (!expense.payerId) {
+      validationErrors.payerId = "Payer cannot be empty";
+    }
+    if (Object.keys(validationErrors).length > 0) {
+      console.log({ errors });
+      setErrors(validationErrors);
+      return;
+    }
+
+    assertValidExpense(expense);
+    await addExpense(expense, group?.users.map((user) => user.id) ?? []);
     router.replace({ pathname: "/groups/[id]", params: { id } });
   };
 
-  const searchUsers = (text: string) => {
-    setPayerName(text);
-    if (group) {
-      setPayerOptions(group.users.filter((user) => user.name.includes(text)));
-    }
-  };
+  const users = useMemo(
+    () => group?.users.map((user) => ({ id: user.id, title: user.name })) ?? [],
+    [group?.users],
+  );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Header title={`Add expense to ${group?.name}`} backRoute=".." />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardAvoidingView}
-      >
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      style={styles.keyboardAvoidingView}
+    >
+      <SafeAreaView style={styles.container}>
+        <Header title={`Add expense to ${group?.name}`} backRoute=".." />
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
@@ -55,19 +79,32 @@ export default function NewExpense() {
                     description: newValue,
                   }));
                 }}
+                errorMessage={errors.description}
               />
               <Input
                 label="Amount"
                 placeholder="0"
                 inputMode="decimal"
                 keyboardType="decimal-pad"
-                value={expense.amount?.toString()}
+                defaultValue={expense.amount?.toString()}
                 onChangeText={(newValue) => {
-                  setExpense((prevState) => ({
-                    ...prevState,
-                    amount: Number(newValue),
-                  }));
+                  if (Number.isNaN(Number(newValue))) {
+                    setErrors((prevState) => ({
+                      ...prevState,
+                      ["amount"]: "Invalid amount",
+                    }));
+                  } else {
+                    setErrors((prevState) => ({
+                      ...prevState,
+                      ["amount"]: undefined,
+                    }));
+                    setExpense((prevState) => ({
+                      ...prevState,
+                      amount: Number(newValue),
+                    }));
+                  }
                 }}
+                errorMessage={errors.amount}
               />
               <DateTimeInput
                 label="Date"
@@ -78,8 +115,9 @@ export default function NewExpense() {
                     date: date.getTime(),
                   }));
                 }}
+                errorMessage={errors.date}
               />
-              <View style={styles.categoryContainer}>
+              <View style={styles.fieldContainer}>
                 <Text style={styles.label}>Category</Text>
                 <View style={styles.categoryField}>
                   <Icon
@@ -106,22 +144,53 @@ export default function NewExpense() {
                       ))}
                     </Picker>
                   </View>
+                  <Text>{errors.date}</Text>
                 </View>
               </View>
-              <Input
-                label="Payer"
-                placeholder="John Doe"
-                value={payerName}
-                onChangeText={searchUsers}
-              />
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label}>Payer</Text>
+                <AutocompleteDropdown
+                  initialValue={expense.payerId}
+                  clearOnFocus={false}
+                  closeOnBlur={true}
+                  closeOnSubmit={true}
+                  onSelectItem={(item) => {
+                    setExpense((prevState) => ({
+                      ...prevState,
+                      payerId: item?.id,
+                    }));
+                  }}
+                  dataSet={users}
+                  containerStyle={styles.autocompleteContainer}
+                  inputContainerStyle={styles.autocompleteInputContainer}
+                  suggestionsListContainerStyle={
+                    styles.autocompleteSuggestionContainer
+                  }
+                  textInputProps={{ style: styles.autocompleteInput }}
+                />
+                <Text>{errors.payerId}</Text>
+              </View>
             </View>
-            {/* TODO: button goes under the tabs when keyboard is open */}
             <Button title="Add" onPress={onAdd} style={styles.button} />
           </View>
         </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
+}
+
+function assertValidExpense(
+  expense: Partial<Omit<Expense, "id">>,
+): asserts expense is Omit<Expense, "id"> {
+  if (
+    expense.description === undefined ||
+    expense.amount === undefined ||
+    expense.date === undefined ||
+    expense.category === undefined ||
+    expense.payerId === undefined
+  ) {
+    throw new Error("Invalid expense. Undefined field", { cause: expense });
+  }
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -145,7 +214,7 @@ const useStyles = makeStyles((theme) => ({
   button: {
     marginBottom: 16,
   },
-  categoryContainer: {
+  fieldContainer: {
     paddingHorizontal: 10,
     width: "100%",
     marginBottom: 17,
@@ -164,5 +233,19 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 16,
     fontWeight: "bold",
     color: theme.colors.grey3,
+  },
+  autocompleteContainer: {
+    paddingInlineEnd: 4,
+    borderBottomWidth: 1,
+    borderColor: theme.colors.grey3,
+  },
+  autocompleteInputContainer: {
+    backgroundColor: "transparent",
+  },
+  autocompleteSuggestionContainer: {
+    backgroundColor: theme.colors.searchBg,
+  },
+  autocompleteInput: {
+    color: theme.colors.black,
   },
 }));

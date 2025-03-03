@@ -13,15 +13,18 @@ export const Header = ({ title, backRoute }: HeaderComponentProps) => {
 
   return (
     <HeaderRNE
-      leftComponent={
-        (backRoute && {
-          icon: "arrow-left",
-          type: "material-community",
-          color: "#fff",
-          onPress: () => router.replace(backRoute),
-        }) ||
-        undefined
-      }
+      leftComponent={{
+        icon: "arrow-left",
+        type: "material-community",
+        color: "#fff",
+        onPress: () => {
+          if (backRoute) {
+            router.dismissTo(backRoute);
+          } else {
+            router.back();
+          }
+        },
+      }}
       centerComponent={{ text: title, style: styles.heading }}
     />
   );
